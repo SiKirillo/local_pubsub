@@ -125,7 +125,7 @@ class Subscription {
   /// Topics that are subscribed to.
   final Set<String?>? _topics;
   /// Controller for listening to messages.
-  final StreamController<String?>? _controller = StreamController();
+  final StreamController<String?>? _controller = StreamController.broadcast();
   /// Pubsub name to check
   final String? _pubsub;
   /// Is subscription canceled

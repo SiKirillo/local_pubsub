@@ -1,6 +1,6 @@
 name: local_pubsub
 description: A simple local pubsub library for Dart.
-version: 1.0.1
+version: 1.0.2
 homepage: https://github.com/SiKirillo/local_pubsub
 
 environment:

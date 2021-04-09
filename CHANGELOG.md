@@ -1,3 +1,6 @@
+## 1.0.2
+* Change default stream conroller to broadcast.
+
 ## 1.0.1
 * API documentation minor changes
 
