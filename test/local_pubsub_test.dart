@@ -1,8 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:local_pubsub/pubsub.dart';
-import 'package:local_pubsub/subscription.dart';
+import 'package:local_pubsub/local_pubsub.dart';
 
 void main() {
   test('subscribe to topic', () {
