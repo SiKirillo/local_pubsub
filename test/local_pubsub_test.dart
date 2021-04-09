@@ -1,16 +1,16 @@
 import 'dart:async';
 
 import 'package:flutter_test/flutter_test.dart';
-
-import 'package:local_pubsub/src/pubsub.dart';
-import 'package:local_pubsub/src/subscription.dart';
+import 'package:local_pubsub/pubsub.dart';
+import 'package:local_pubsub/subscription.dart';
 
 void main() {
   test('subscribe to topic', () {
     final PubSub? localPubSub = PubSub();
     String? topic = 'topic';
 
-    expect(localPubSub?.subscribe(topic)?.topic, Subscription(topic).topic);
+    Subscription? sub = localPubSub?.subscribe(topic);
+    expect(sub?.topics?.contains(topic), localPubSub?.getTopics()?.contains(topic));
   });
 
   test('publish topic', () async {
@@ -51,7 +51,7 @@ void main() {
       deliveredMessage2 = message;
     });
 
-    localPubSub?.publishMany([topic1, topic2], message);
+    localPubSub?.publishMany({topic1, topic2}, message);
 
     await Future.delayed(Duration(seconds: 1));
     expect(deliveredMessage1, message);
@@ -93,7 +93,26 @@ void main() {
     expect(deliveredMessage3, message);
   });
 
-  test('unsubscribe topic', () async {
+  test('publish several topics', () async {
+    final PubSub? localPubSub = PubSub();
+    String? topic1 = 'topic';
+    String? topic2 = 'all';
+    String? message = 'message';
+
+    Subscription? sub = localPubSub?.subscribeToMany({topic1, topic2});
+    List<String?>? deliveredMessages = [];
+
+    sub?.stream?.listen((message) {
+      deliveredMessages.add(message);
+    });
+
+    localPubSub?.publishMany({topic1, topic2}, message);
+
+    await Future.delayed(Duration(seconds: 1));
+    expect(deliveredMessages.length, 2);
+  });
+
+  test('unsubscribe subscription', () async {
     final PubSub? localPubSub = PubSub();
     String? topic1 = 'topic';
     String? topic2 = 'all';
@@ -114,11 +133,31 @@ void main() {
     });
 
     await localPubSub?.unsubscribe(sub1);
-    localPubSub?.publishMany([topic1, topic2], message);
+    localPubSub?.publishMany({topic1, topic2}, message);
 
     await Future.delayed(Duration(seconds: 1));
     expect(deliveredMessage1, null);
     expect(deliveredMessage2, message);
+  });
+
+  test('unsubscribe subscription and publish topic', () async {
+    final PubSub? localPubSub = PubSub();
+    String? topic = 'topic';
+    String? message = 'message';
+
+    Subscription? sub = localPubSub?.subscribe(topic);
+    List<String?>? deliveredMessages = [];
+
+    sub?.stream?.listen((message) {
+      deliveredMessages.add(message);
+    });
+
+    localPubSub?.publish(topic, message);
+    await localPubSub?.unsubscribe(sub);
+    localPubSub?.publish(topic, message);
+
+    await Future.delayed(Duration(seconds: 1));
+    expect(deliveredMessages.length, 1);
   });
 
   test('unsubscribe multiple topic', () async {
@@ -148,7 +187,7 @@ void main() {
     });
 
     await localPubSub?.unsubscribeMany([sub1, sub2]);
-    localPubSub?.publishMany([topic1, topic2], message);
+    localPubSub?.publishMany({topic1, topic2}, message);
 
     await Future.delayed(Duration(seconds: 1));
     expect(deliveredMessage1, null);
@@ -183,7 +222,7 @@ void main() {
     });
 
     await localPubSub?.unsubscribeAll(topic1);
-    localPubSub?.publishMany([topic1, topic2], message);
+    localPubSub?.publishMany({topic1, topic2}, message);
 
     await Future.delayed(Duration(seconds: 1));
     expect(deliveredMessage1, null);

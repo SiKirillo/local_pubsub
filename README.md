@@ -2,13 +2,40 @@
 
 A simple local pubsub library for Dart.
 
-## Getting Started
+## What you can do
 
-This project is a starting point for a Dart
-[package](https://flutter.dev/developing-packages/),
-a library module containing code that can be shared easily across
-multiple Flutter or Dart projects.
+This library allows you to subscribe to different topics and send messages to all subscribers to this topic.
 
-For help getting started with Flutter, view our 
-[online documentation](https://flutter.dev/docs), which offers tutorials, 
-samples, guidance on mobile development, and a full API reference.
+- Subscribe to topic
+
+```dart
+void main() {
+    PubSub pubsub = PubSub();
+    Subscription? sub = pubsub?.subscribe('topic');
+}
+```
+
+- Unubscribe to topic
+
+```dart
+void main() {
+    PubSub pubsub = PubSub();
+    Subscription? sub = pubsub?.subscribe('topic');
+    pubsub?.unsubscribe(sub);
+}
+```
+
+- Publish message for topic
+
+```dart
+void main() {
+    PubSub pubsub = PubSub();
+    Subscription? sub = pubsub?.subscribe('topic');
+    sub?.stream?.listen((message) {
+        print(message);
+    });
+    
+    pubsub?.publish('topic', 'hello');
+}
+```
+
