@@ -26,14 +26,16 @@ class PubSub {
 
   /// Sends messages to all subscribers of this topic.
   void publish(String? topic, dynamic message) {
-    if (_subscriptions.containsKey(topic)) {
-      _subscriptions[topic]!.forEach((sub) {
-        if (sub?.isCanceled == true) {
-          throw Exception("This subscription canceled");
-        }
-        sub?.send(message);
-      });
+    if (!_subscriptions.containsKey(topic)) {
+      return;
     }
+
+    _subscriptions[topic]!.forEach((sub) {
+      if (sub?.isCanceled == true) {
+        throw Exception("This subscription canceled");
+      }
+      sub?.send(message);
+    });
   }
 
   /// Sends messages to all subscribers of several topics.
@@ -75,12 +77,14 @@ class PubSub {
     }
 
     subscription?.topics!.forEach((topic) {
-      if (_subscriptions.containsKey(topic)) {
-        _subscriptions[topic]!.remove(subscription);
+      if (!_subscriptions.containsKey(topic)) {
+        return;
+      }
 
-        if (_subscriptions[topic]!.isEmpty) {
-          _subscriptions.remove(topic);
-        }
+      _subscriptions[topic]!.remove(subscription);
+
+      if (_subscriptions[topic]!.isEmpty) {
+        _subscriptions.remove(topic);
       }
     });
 
@@ -96,12 +100,14 @@ class PubSub {
 
   /// Deletes all subscriptions to the specified topic.
   Future<void>? unsubscribeAll(String? topic) async {
-    if (_subscriptions.containsKey(topic)) {
-      Set<Subscription?>? subs = Set.from(_subscriptions[topic]!);
-      subs.forEach((sub) async {
-        await unsubscribe(sub);
-      });
+    if (!_subscriptions.containsKey(topic)) {
+      return;
     }
+
+    Set<Subscription?>? subs = Set.from(_subscriptions[topic]!);
+    subs.forEach((sub) async {
+      await unsubscribe(sub);
+    });
   }
 
   /// Return set of pubsub topics
@@ -124,10 +130,10 @@ class PubSub {
 class Subscription {
   /// Topics that are subscribed to.
   final Set<String?>? _topics;
-  /// Controller for listening to messages.
-  final StreamController<String?>? _controller = StreamController.broadcast();
   /// Pubsub name to check
   final String? _pubsub;
+  /// Controller for listening to messages.
+  final StreamController<dynamic>? _controller = StreamController();
   /// Is subscription canceled
   bool? _isCanceled = false;
 
